@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 public class CsvQuestionDao implements QuestionDao {
@@ -31,17 +32,21 @@ public class CsvQuestionDao implements QuestionDao {
                     .withCSVParser(new CSVParserBuilder()
                             .withSeparator(';')
                             .build())
-                    .withSkipLines(1)
                     .build();
             return new CsvToBeanBuilder<QuestionDto>(csvReader)
                     .withType(QuestionDto.class)
                     .build()
                     .parse()
                     .stream()
+                    .filter(isNotComment())
                     .map(QuestionDto::toDomainObject)
                     .toList();
         } catch (IOException e) {
             throw new QuestionReadException(e.getMessage());
         }
+    }
+
+    private Predicate<? super QuestionDto> isNotComment() {
+        return (questionDto) -> !questionDto.getText().startsWith("#");
     }
 }

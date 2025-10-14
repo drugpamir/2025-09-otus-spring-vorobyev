@@ -39,7 +39,7 @@ public class TestServiceImpl implements TestService {
             ioService.printLine("");
         }
 
-        ioService.printFormattedLine("\nВаш результат: %d из %d правильных ответов", rightAnswersCount, QUESTIONS_COUNT);
+        ioService.printFormattedLine("%nВаш результат: %d из %d правильных ответов", rightAnswersCount, QUESTIONS_COUNT);
     }
 
     private List<Question> getRandomQuestions(List<Question> questions, int count) {
