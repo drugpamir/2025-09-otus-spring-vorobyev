@@ -46,7 +46,7 @@ public class TestServiceImpl implements TestService {
         }
     }
 
-    private int getUserAnswerNumber(Question question) {
+    protected int getUserAnswerNumber(Question question) {
         ioService.printLine("\nEnter the correct answer number:");
         while (true) {
             String answerStr = scanner.next().trim();
@@ -64,11 +64,11 @@ public class TestServiceImpl implements TestService {
         }
     }
 
-    private boolean isAnswerRight(Question question, int answerNum) {
+    protected boolean isAnswerRight(Question question, int answerNum) {
         return question.answers().get(answerNum - 1).isCorrect();
     }
 
-    private List<Question> getRandomQuestions(List<Question> questions, int count) {
+    protected List<Question> getRandomQuestions(List<Question> questions, int count) {
         return new Random().ints(0, questions.size()).boxed()
                 .distinct()
                 .limit(count)
