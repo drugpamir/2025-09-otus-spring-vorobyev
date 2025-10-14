@@ -1,6 +1,7 @@
 package ru.otus.hw.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.math.NumberUtils;
 import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Question;
 
@@ -11,11 +12,11 @@ import java.util.Scanner;
 @RequiredArgsConstructor
 public class TestServiceImpl implements TestService {
 
+    private static final int QUESTIONS_COUNT = 3;
+
     private final IOService ioService;
 
     private final QuestionDao questionDao;
-
-    private static final int QUESTIONS_COUNT = 3;
 
     @Override
     public void executeTest() {
@@ -32,13 +33,22 @@ public class TestServiceImpl implements TestService {
                 ioService.printFormattedLine("#%d: %s", i + 1, answer.text());
             }
             ioService.printLine("\nEnter the correct answer number:");
-            int answerIndex = scanner.nextInt() - 1;
-            if (question.answers().get(answerIndex).isCorrect()) {
-                rightAnswersCount++;
+            while (true) {
+                String answerStr = scanner.next().trim();
+                int answerNum;
+                if (!NumberUtils.isCreatable(answerStr) || (answerNum = Integer.parseInt(answerStr)) < 1 || answerNum > question.answers().size()) {
+                    ioService.printFormattedLine("Invalid answer: '%s'. Values should be a number in range %d..%d",
+                            answerStr, 1, question.answers().size());
+                    continue;
+                }
+                if (question.answers().get(answerNum - 1).isCorrect()) {
+                    rightAnswersCount++;
+                }
+                ioService.printLine("");
+                break;
             }
-            ioService.printLine("");
         }
-
+        
         ioService.printFormattedLine("%nВаш результат: %d из %d правильных ответов", rightAnswersCount, QUESTIONS_COUNT);
     }
 
