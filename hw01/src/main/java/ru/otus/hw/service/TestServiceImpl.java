@@ -18,38 +18,54 @@ public class TestServiceImpl implements TestService {
 
     private final QuestionDao questionDao;
 
+    private final Scanner scanner = new Scanner(System.in);
+
     @Override
     public void executeTest() {
         ioService.printLine("");
         ioService.printFormattedLine("Please answer the questions below%n");
 
         int rightAnswersCount = 0;
-        var scanner = new Scanner(System.in);
         var questions = getRandomQuestions(questionDao.findAll(), QUESTIONS_COUNT);
         for (var question : questions) {
-            ioService.printLine(question.text());
-            for (int i = 0; i < question.answers().size(); i++) {
-                var answer = question.answers().get(i);
-                ioService.printFormattedLine("#%d: %s", i + 1, answer.text());
-            }
-            ioService.printLine("\nEnter the correct answer number:");
-            while (true) {
-                String answerStr = scanner.next().trim();
-                int answerNum;
-                if (!NumberUtils.isCreatable(answerStr) || (answerNum = Integer.parseInt(answerStr)) < 1 || answerNum > question.answers().size()) {
-                    ioService.printFormattedLine("Invalid answer: '%s'. Values should be a number in range %d..%d",
-                            answerStr, 1, question.answers().size());
-                    continue;
-                }
-                if (question.answers().get(answerNum - 1).isCorrect()) {
-                    rightAnswersCount++;
-                }
-                ioService.printLine("");
-                break;
+            printQuestionWithAnswers(question);
+            int answerNum = getUserAnswerNumber(question);
+            if (isAnswerRight(question, answerNum)) {
+                rightAnswersCount++;
             }
         }
-        
+
         ioService.printFormattedLine("%nВаш результат: %d из %d правильных ответов", rightAnswersCount, QUESTIONS_COUNT);
+    }
+
+    private void printQuestionWithAnswers(Question question) {
+        ioService.printLine(question.text());
+        for (int i = 0; i < question.answers().size(); i++) {
+            var answer = question.answers().get(i);
+            ioService.printFormattedLine("#%d: %s", i + 1, answer.text());
+        }
+    }
+
+    private int getUserAnswerNumber(Question question) {
+        ioService.printLine("\nEnter the correct answer number:");
+        while (true) {
+            String answerStr = scanner.next().trim();
+            int answerNum;
+            if (!NumberUtils.isCreatable(answerStr)
+                    || (answerNum = Integer.parseInt(answerStr)) < 1
+                    || answerNum > question.answers().size()
+            ) {
+                ioService.printFormattedLine("Invalid answer: '%s'. Values should be a number in range %d..%d",
+                        answerStr, 1, question.answers().size());
+                continue;
+            }
+            ioService.printLine("");
+            return answerNum;
+        }
+    }
+
+    private boolean isAnswerRight(Question question, int answerNum) {
+        return question.answers().get(answerNum - 1).isCorrect();
     }
 
     private List<Question> getRandomQuestions(List<Question> questions, int count) {
