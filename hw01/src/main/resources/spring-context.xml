@@ -17,6 +17,9 @@
 
     <bean id="ioService" class="ru.otus.hw.service.StreamsIOService">
         <constructor-arg index="0">
+            <util:constant static-field="java.lang.System.in"/>
+        </constructor-arg>
+        <constructor-arg index="1">
             <util:constant static-field="java.lang.System.out"/>
         </constructor-arg>
     </bean>

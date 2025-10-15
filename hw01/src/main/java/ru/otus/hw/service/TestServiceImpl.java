@@ -7,7 +7,6 @@ import ru.otus.hw.domain.Question;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
 @RequiredArgsConstructor
 public class TestServiceImpl implements TestService {
@@ -17,8 +16,6 @@ public class TestServiceImpl implements TestService {
     private final IOService ioService;
 
     private final QuestionDao questionDao;
-
-    private final Scanner scanner = new Scanner(System.in);
 
     @Override
     public void executeTest() {
@@ -49,7 +46,7 @@ public class TestServiceImpl implements TestService {
     protected int getUserAnswerNumber(Question question) {
         ioService.printLine("\nEnter the correct answer number:");
         while (true) {
-            String answerStr = scanner.next().trim();
+            String answerStr = ioService.readLine();
             int answerNum;
             if (!NumberUtils.isCreatable(answerStr)
                     || (answerNum = Integer.parseInt(answerStr)) < 1

@@ -33,6 +33,7 @@ class TestServiceImplTest {
         );
 
         ioService = mock(IOService.class);
+        given(ioService.readLine()).willReturn("1").willReturn("2").willReturn("3").willReturn("4");
 
         questionDao = mock(QuestionDao.class);
         given(questionDao.findAll()).willReturn(questions);
@@ -49,7 +50,8 @@ class TestServiceImplTest {
 
     @Test
     void isAnswerRight() {
-        assertThat(testService.isAnswerRight(questions.get(0), 1)).isTrue();
+        assertThat(testService.isAnswerRight(questions.get(0), 1)).isFalse();
+        assertThat(testService.isAnswerRight(questions.get(0), 2)).isTrue();
     }
 
     @Test
