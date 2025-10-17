@@ -8,6 +8,7 @@
 
     <bean id="runnerService" class="ru.otus.hw.service.TestRunnerServiceImpl">
         <constructor-arg index="0" ref="testService"/>
+        <constructor-arg index="1" ref="ioService"/>
     </bean>
 
     <bean id="testService" class="ru.otus.hw.service.TestServiceImpl">

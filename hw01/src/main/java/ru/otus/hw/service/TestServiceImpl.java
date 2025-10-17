@@ -61,11 +61,11 @@ public class TestServiceImpl implements TestService {
         }
     }
 
-    protected boolean isAnswerRight(Question question, int answerNum) {
+    private boolean isAnswerRight(Question question, int answerNum) {
         return question.answers().get(answerNum - 1).isCorrect();
     }
 
-    protected List<Question> getRandomQuestions(List<Question> questions, int count) {
+    private List<Question> getRandomQuestions(List<Question> questions, int count) {
         return new Random().ints(0, questions.size()).boxed()
                 .distinct()
                 .limit(count)

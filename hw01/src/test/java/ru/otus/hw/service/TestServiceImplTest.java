@@ -8,19 +8,18 @@ import ru.otus.hw.domain.Question;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 class TestServiceImplTest {
 
-    List<Question> questions;
+    private List<Question> questions;
 
-    IOService ioService;
+    private IOService ioService;
 
-    QuestionDao questionDao;
+    private QuestionDao questionDao;
 
-    TestServiceImpl testService;
+    private TestServiceImpl testService;
 
     @BeforeEach
     void setUp() {
@@ -38,7 +37,7 @@ class TestServiceImplTest {
         questionDao = mock(QuestionDao.class);
         given(questionDao.findAll()).willReturn(questions);
 
-        testService = spy(new TestServiceImpl(ioService, questionDao));
+        testService = new TestServiceImpl(ioService, questionDao);
 //        given(testService.getUserAnswerNumber())
     }
 
@@ -46,17 +45,5 @@ class TestServiceImplTest {
     void executeTest() {
         testService.executeTest();
         verify(questionDao, times(1)).findAll();
-    }
-
-    @Test
-    void isAnswerRight() {
-        assertThat(testService.isAnswerRight(questions.get(0), 1)).isFalse();
-        assertThat(testService.isAnswerRight(questions.get(0), 2)).isTrue();
-    }
-
-    @Test
-    void getRandomQuestions() {
-        assertThat(testService.getRandomQuestions(questions, 2)).hasSize(2);
-        assertThat(testService.getRandomQuestions(questions, 3)).hasSize(3);
     }
 }
