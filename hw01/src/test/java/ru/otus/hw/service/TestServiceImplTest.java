@@ -32,13 +32,11 @@ class TestServiceImplTest {
         );
 
         ioService = mock(IOService.class);
-        given(ioService.readLine()).willReturn("1").willReturn("2").willReturn("3").willReturn("4");
 
         questionDao = mock(QuestionDao.class);
         given(questionDao.findAll()).willReturn(questions);
 
         testService = new TestServiceImpl(ioService, questionDao);
-//        given(testService.getUserAnswerNumber())
     }
 
     @Test
