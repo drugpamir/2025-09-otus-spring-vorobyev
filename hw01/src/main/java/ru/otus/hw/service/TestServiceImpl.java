@@ -18,22 +18,33 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public void executeTest() {
-        ioService.printLine("");
-        ioService.printFormattedLine("Please answer the questions below%n");
-
-        var questions = getRandomQuestions(questionDao.findAll(), QUESTIONS_COUNT);
-        for (var question : questions) {
-            printQuestionWithAnswers(question);
-        }
+        List<Question> questions = getRandomQuestions(questionDao.findAll(), QUESTIONS_COUNT);
+        StringBuilder formattedQuestionsWithAnswers = formatQuestionsWithAnswers(questions);
+        printQuestionsWithAnswers(formattedQuestionsWithAnswers);
     }
 
-    private void printQuestionWithAnswers(Question question) {
-        ioService.printLine(question.text());
+    private StringBuilder formatQuestionsWithAnswers(List<Question> questions) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\nPlease answer the questions below\n");
+        questions.stream()
+                .map(this::formatQuestionWithAnswers)
+                .forEach(sb::append);
+        return sb;
+    }
+
+    private StringBuilder formatQuestionWithAnswers(Question question) {
+        StringBuilder sb = new StringBuilder(question.text());
+        sb.append("\n");
         for (int i = 0; i < question.answers().size(); i++) {
             var answer = question.answers().get(i);
-            ioService.printFormattedLine("#%d: %s", i + 1, answer.text());
+            sb.append(String.format("#%d: %s%n", i + 1, answer.text()));
         }
-        ioService.printLine("");
+        sb.append("\n");
+        return sb;
+    }
+
+    private void printQuestionsWithAnswers(StringBuilder sb) {
+        ioService.printLine(sb.toString());
     }
 
     private List<Question> getRandomQuestions(List<Question> questions, int count) {
