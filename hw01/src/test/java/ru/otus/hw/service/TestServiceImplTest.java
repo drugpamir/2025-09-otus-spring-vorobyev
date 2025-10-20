@@ -13,8 +13,6 @@ import static org.mockito.Mockito.*;
 
 class TestServiceImplTest {
 
-    private List<Question> questions;
-
     private IOService ioService;
 
     private QuestionDao questionDao;
@@ -23,7 +21,7 @@ class TestServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        questions = List.of(
+        List<Question> questions = List.of(
                 new Question("Question 1", List.of(new Answer("Answer 1", false), new Answer("Answer 2", true))),
                 new Question("Question 2", List.of(new Answer("Answer 1", true), new Answer("Answer 2", false), new Answer("Answer 3", false))),
                 new Question("Question 3", List.of(new Answer("Answer 1", false), new Answer("Answer 2", true), new Answer("Answer 3", false))),
@@ -43,5 +41,9 @@ class TestServiceImplTest {
     void executeTest() {
         testService.executeTest();
         verify(questionDao, times(1)).findAll();
+        verify(ioService).printLine(contains("Question"));
+        verify(ioService).printLine(contains("Answer 1"));
+        verify(ioService).printLine(contains("Answer 2"));
+        verify(ioService).printLine(contains("Answer 3"));
     }
 }
