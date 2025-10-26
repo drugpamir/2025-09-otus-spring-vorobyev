@@ -32,17 +32,12 @@ public class TestServiceImpl implements TestService {
         var testResult = new TestResult(student);
 
         for (var question : testQuestions) {
-            ioService.printLine(question.text());
+            printQuestion(question);
+            printAnswers(question);
 
-            var answersBuilder = new StringBuilder();
-            for (int i = 0; i < question.answers().size(); i++) {
-                answersBuilder.append(String.format("%d: %s\n", i + 1, question.answers().get(i).text()));
-            }
+            int answer = readUserAnswer(question);
 
-            int answer = ioService.readIntForRangeWithPrompt(1, question.answers().size(), answersBuilder.toString(), "Answer input error");
-
-            var isAnswerValid = question.answers().get(answer - 1).isCorrect();
-            testResult.applyAnswer(question, isAnswerValid);
+            handleUserAnswer(question, answer, testResult);
         }
         return testResult;
     }
@@ -53,6 +48,33 @@ public class TestServiceImpl implements TestService {
                 .limit(count)
                 .map(questions::get)
                 .toList();
+    }
+
+    private void printQuestion(Question question) {
+        ioService.printLine("");
+        ioService.printLine(question.text());
+    }
+
+    private void printAnswers(Question question) {
+        var answersBuilder = new StringBuilder();
+        for (int i = 0; i < question.answers().size(); i++) {
+            answersBuilder.append(String.format("%d: %s\n", i + 1, question.answers().get(i).text()));
+        }
+        ioService.printLine(answersBuilder.toString());
+    }
+
+    private int readUserAnswer(Question question) {
+        return ioService.readIntForRangeWithPrompt(
+                1,
+                question.answers().size(),
+                String.format("Enter an answer from 1 to %d", question.answers().size()),
+                "Answer input error"
+        );
+    }
+
+    private static void handleUserAnswer(Question question, int answer, TestResult testResult) {
+        var isAnswerValid = question.answers().get(answer - 1).isCorrect();
+        testResult.applyAnswer(question, isAnswerValid);
     }
 }
 
