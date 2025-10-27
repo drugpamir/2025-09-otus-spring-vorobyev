@@ -15,11 +15,11 @@ import static org.mockito.Mockito.*;
 
 class TestServiceImplTest {
 
+    private IOService ioService;
+
     private QuestionDao questionDao;
 
-    private StudentService studentService;
-
-    private TestServiceImpl testService;
+    private AppProperties appProperties;
 
     @BeforeEach
     void setUp() {
@@ -31,29 +31,35 @@ class TestServiceImplTest {
                 new Question("Question 5", List.of(new Answer("Answer 1", false), new Answer("Answer 2", true), new Answer("Answer 3", true)))
         );
 
-        var ioService = mock(IOService.class);
+        ioService = mock(IOService.class);
         given(ioService.readIntForRangeWithPrompt(anyInt(), anyInt(), anyString(), anyString())).willReturn(1);
 
-        var appProperties = mock(AppProperties.class);
+        appProperties = mock(AppProperties.class);
         given(appProperties.getRightAnswersCountToPass()).willReturn(3);
 
         questionDao = mock(QuestionDao.class);
         given(questionDao.findAll()).willReturn(questions);
 
-        studentService = mock(StudentService.class);
+        var studentService = mock(StudentService.class);
         given(studentService.determineCurrentStudent()).willReturn(new Student("John", "Doe"));
 
-        testService = new TestServiceImpl(ioService, questionDao, appProperties);
+        var student = studentService.determineCurrentStudent();
+        var testService = new TestServiceImpl(ioService, questionDao, appProperties);
+        testService.executeTestFor(student);
     }
 
     @Test
-    void executeTestFor() {
-        var student = studentService.determineCurrentStudent();
-        testService.executeTestFor(student);
+    void shouldFetchQuestionsFromDao() {
         verify(questionDao, times(1)).findAll();
-//        verify(ioService).printLine(contains("Question"));
-//        verify(ioService).printLine(contains("Answer 1"));
-//        verify(ioService).printLine(contains("Answer 2"));
-//        verify(ioService).printLine(contains("Answer 3"));
+    }
+
+    @Test
+    void shouldReadCountOfQuestionsPropertyValue() {
+        verify(appProperties, times(1)).getRightAnswersCountToPass();
+    }
+
+    @Test
+    void shouldPrintQuestionTextToUser() {
+        verify(ioService ,times(3)).printLine(startsWith("Question"));
     }
 }
