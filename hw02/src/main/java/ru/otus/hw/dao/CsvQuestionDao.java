@@ -43,7 +43,7 @@ public class CsvQuestionDao implements QuestionDao {
                     .map(QuestionDto::toDomainObject)
                     .toList();
         } catch (Exception e) {
-            throw new QuestionReadException(e.getMessage());
+            throw new QuestionReadException(e.getMessage(), e);
         }
     }
 

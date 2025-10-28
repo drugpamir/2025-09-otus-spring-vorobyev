@@ -2,7 +2,7 @@ package ru.otus.hw.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.otus.hw.config.AppProperties;
+import ru.otus.hw.config.TestConfig;
 import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Question;
 import ru.otus.hw.domain.Student;
@@ -19,25 +19,25 @@ public class TestServiceImpl implements TestService {
 
     private final QuestionDao questionDao;
 
-    private final AppProperties appProperties;
+    private final TestConfig testConfig;
 
     @Override
     public TestResult executeTestFor(Student student) {
-        ioService.printLine("");
-        ioService.printFormattedLine("Please answer the questions below%n");
+        ioService.printFormattedLine("%nPlease answer the questions below%n");
 
         var questions = questionDao.findAll();
-        var testQuestions = getRandomQuestions(questions, appProperties.getRightAnswersCountToPass());
+        var testQuestions = getRandomQuestions(questions, testConfig.getRightAnswersCountToPass());
 
         var testResult = new TestResult(student);
 
         for (var question : testQuestions) {
-            printQuestion(question);
-            printAnswers(question);
+            var questionText = getQuestionText(question);
+            printQuestion(questionText);
 
             int answer = readUserAnswer(question);
+            var isAnswerValid = askQuestion(question, answer);
 
-            handleUserAnswer(question, answer, testResult);
+            testResult.applyAnswer(question, isAnswerValid);
         }
         return testResult;
     }
@@ -50,17 +50,18 @@ public class TestServiceImpl implements TestService {
                 .toList();
     }
 
-    private void printQuestion(Question question) {
-        ioService.printLine("");
-        ioService.printLine(question.text());
-    }
-
-    private void printAnswers(Question question) {
-        var answersBuilder = new StringBuilder();
+    private String getQuestionText(Question question) {
+        var answersBuilder = new StringBuilder(System.lineSeparator())
+                .append(question.text())
+                .append(System.lineSeparator());
         for (int i = 0; i < question.answers().size(); i++) {
             answersBuilder.append(String.format("%d: %s\n", i + 1, question.answers().get(i).text()));
         }
-        ioService.printLine(answersBuilder.toString());
+        return answersBuilder.toString();
+    }
+
+    private void printQuestion(String questionText) {
+        ioService.printLine(questionText);
     }
 
     private int readUserAnswer(Question question) {
@@ -72,9 +73,8 @@ public class TestServiceImpl implements TestService {
         );
     }
 
-    private static void handleUserAnswer(Question question, int answer, TestResult testResult) {
-        var isAnswerValid = question.answers().get(answer - 1).isCorrect();
-        testResult.applyAnswer(question, isAnswerValid);
+    private boolean askQuestion(Question question, int answer) {
+        return question.answers().get(answer - 1).isCorrect();
     }
 }
 
