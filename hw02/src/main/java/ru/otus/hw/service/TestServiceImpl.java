@@ -26,7 +26,7 @@ public class TestServiceImpl implements TestService {
         ioService.printFormattedLine("%nPlease answer the questions below%n");
 
         var questions = questionDao.findAll();
-        var testQuestions = getRandomQuestions(questions, testConfig.getRightAnswersCountToPass());
+        var testQuestions = getRandomQuestions(questions, testConfig.getAskingQuestionsCount());
 
         var testResult = new TestResult(student);
 
