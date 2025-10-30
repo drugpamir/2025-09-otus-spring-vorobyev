@@ -21,6 +21,10 @@ class TestServiceImplTest {
 
     private AppProperties appProperties;
 
+    private Student student;
+
+    private TestService testService;
+
     @BeforeEach
     void setUp() {
         List<Question> questions = List.of(
@@ -44,23 +48,25 @@ class TestServiceImplTest {
         var studentService = mock(StudentService.class);
         given(studentService.determineCurrentStudent()).willReturn(new Student("John", "Doe"));
 
-        var student = studentService.determineCurrentStudent();
-        var testService = new TestServiceImpl(ioService, questionDao, appProperties);
-        testService.executeTestFor(student);
+        student = studentService.determineCurrentStudent();
+        testService = new TestServiceImpl(ioService, questionDao, appProperties);
     }
 
     @Test
     void shouldFetchQuestionsFromDao() {
+        testService.executeTestFor(student);
         verify(questionDao, times(1)).findAll();
     }
 
     @Test
     void shouldReadCountOfQuestionsPropertyValue() {
+        testService.executeTestFor(student);
         verify(appProperties, times(1)).getAskingQuestionsCount();
     }
 
     @Test
     void shouldPrintQuestionTextToUser() {
+        testService.executeTestFor(student);
         verify(ioService , atLeast(appProperties.getAskingQuestionsCount())).printLine(anyString());
     }
 }
