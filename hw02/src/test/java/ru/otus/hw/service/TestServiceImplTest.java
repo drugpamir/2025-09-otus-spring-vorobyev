@@ -39,7 +39,6 @@ class TestServiceImplTest {
         given(ioService.readIntForRangeWithPrompt(anyInt(), anyInt(), anyString(), anyString())).willReturn(1);
 
         appProperties = mock(AppProperties.class);
-        given(appProperties.getAskingQuestionsCount()).willReturn(5);
         given(appProperties.getRightAnswersCountToPass()).willReturn(3);
 
         questionDao = mock(QuestionDao.class);
@@ -49,7 +48,7 @@ class TestServiceImplTest {
         given(studentService.determineCurrentStudent()).willReturn(new Student("John", "Doe"));
 
         student = studentService.determineCurrentStudent();
-        testService = new TestServiceImpl(ioService, questionDao, appProperties);
+        testService = new TestServiceImpl(ioService, questionDao);
     }
 
     @Test
@@ -59,14 +58,8 @@ class TestServiceImplTest {
     }
 
     @Test
-    void shouldReadCountOfQuestionsPropertyValue() {
-        testService.executeTestFor(student);
-        verify(appProperties, times(1)).getAskingQuestionsCount();
-    }
-
-    @Test
     void shouldPrintQuestionTextToUser() {
         testService.executeTestFor(student);
-        verify(ioService , atLeast(appProperties.getAskingQuestionsCount())).printLine(anyString());
+        verify(ioService, atLeast(appProperties.getRightAnswersCountToPass())).printLine(anyString());
     }
 }
