@@ -15,9 +15,6 @@ import java.util.Map;
 public class AppProperties implements TestConfig, TestFileNameProvider, LocaleConfig {
 
     @Getter
-    private int askingQuestionsCount;
-
-    @Getter
     private int rightAnswersCountToPass;
 
     @Getter

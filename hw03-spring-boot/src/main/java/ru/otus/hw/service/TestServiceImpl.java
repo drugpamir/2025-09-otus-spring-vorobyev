@@ -2,14 +2,10 @@ package ru.otus.hw.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.otus.hw.config.TestConfig;
 import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Question;
 import ru.otus.hw.domain.Student;
 import ru.otus.hw.domain.TestResult;
-
-import java.util.List;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +15,6 @@ public class TestServiceImpl implements TestService {
 
     private final QuestionDao questionDao;
 
-    private final TestConfig testConfig;
-
     @Override
     public TestResult executeTestFor(Student student) {
         ioService.printLine("");
@@ -28,11 +22,9 @@ public class TestServiceImpl implements TestService {
         ioService.printLine("");
 
         var questions = questionDao.findAll();
-        var testQuestions = getRandomQuestions(questions, testConfig.getAskingQuestionsCount());
-
         var testResult = new TestResult(student);
 
-        for (var question: testQuestions) {
+        for (var question: questions) {
             var questionText = getQuestionText(question);
             printQuestion(questionText);
 
@@ -41,14 +33,6 @@ public class TestServiceImpl implements TestService {
             testResult.applyAnswer(question, isAnswerValid);
         }
         return testResult;
-    }
-
-    private List<Question> getRandomQuestions(List<Question> questions, int count) {
-        return new Random().ints(0, questions.size()).boxed()
-                .distinct()
-                .limit(count)
-                .map(questions::get)
-                .toList();
     }
 
     private String getQuestionText(Question question) {
