@@ -21,6 +21,8 @@ public class AppProperties implements TestConfig, TestFileNameProvider, LocaleCo
 
     private Map<String, String> fileNameByLocaleTag;
 
+    private String version;
+
     public void setLocale(String locale) {
         this.locale = Locale.forLanguageTag(locale);
     }
