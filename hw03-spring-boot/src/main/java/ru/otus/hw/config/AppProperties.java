@@ -27,10 +27,10 @@ public class AppProperties implements TestConfig, TestFileNameProvider, LocaleCo
 
     @Override
     public String getTestFileName() {
-        String fileName = fileNameByLocaleTag.get(locale.toLanguageTag());
-        if (fileName == null) {
-            fileName = fileNameByLocaleTag.get(Locale.US.toLanguageTag());
-        }
+        String fileName = fileNameByLocaleTag.getOrDefault(
+                locale.toLanguageTag(),
+                Locale.US.toLanguageTag()
+        );
         if (Paths.get(fileName).isAbsolute()) {
             return fileName;
         }
