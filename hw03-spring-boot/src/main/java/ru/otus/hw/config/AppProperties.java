@@ -9,14 +9,15 @@ import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Map;
 
-@Getter
 @Setter
 @Component
 @ConfigurationProperties(prefix = "test")
 public class AppProperties implements TestConfig, TestFileNameProvider, LocaleConfig {
 
+    @Getter
     private int rightAnswersCountToPass;
 
+    @Getter
     private Locale locale;
 
     private Map<String, String> fileNameByLocaleTag;
