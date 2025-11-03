@@ -9,3 +9,4 @@ test:
   fileNameByLocaleTag:
     ru-RU: questions_ru.csv
     en-US: questions.csv
+  version: 0.3
