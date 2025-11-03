@@ -53,8 +53,8 @@ public class TestServiceImpl implements TestService {
         return ioService.readIntForRangeWithPrompt(
                 1,
                 question.answers().size(),
-                String.format("Enter an answer from 1 to %d", question.answers().size()),
-                "Answer input error"
+                ioService.getMessage("TestService.enter.an.answer", question.answers().size()),
+                ioService.getMessage("TestService.answer.input.error")
         );
     }
 
