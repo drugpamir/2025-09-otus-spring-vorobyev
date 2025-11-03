@@ -2,6 +2,7 @@ package ru.otus.hw.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.otus.hw.exceptions.QuestionReadException;
 
 @Service
 @RequiredArgsConstructor
@@ -13,10 +14,18 @@ public class TestRunnerServiceImpl implements TestRunnerService {
 
     private final ResultService resultService;
 
+    private final LocalizedIOService ioService;
+
     @Override
     public void run() {
         var student = studentService.determineCurrentStudent();
-        var testResult = testService.executeTestFor(student);
-        resultService.showResult(testResult);
+        try {
+            var testResult = testService.executeTestFor(student);
+            resultService.showResult(testResult);
+        }  catch (QuestionReadException e) {
+            ioService.printLineLocalized("TestRunnerService.exception.question.read");
+        } catch (Exception e) {
+            ioService.printLineLocalized("TestRunnerService.exception.default");
+        }
     }
 }
