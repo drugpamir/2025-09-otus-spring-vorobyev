@@ -37,6 +37,8 @@ class TestServiceImplTest {
 
         ioService = mock(LocalizedIOService.class);
         given(ioService.readIntForRangeWithPrompt(anyInt(), anyInt(), anyString(), anyString())).willReturn(1);
+        given(ioService.getMessage(anyString(), anyInt())).willReturn("Prompt");
+        given(ioService.getMessage(anyString())).willReturn("Prompt");
 
         appProperties = mock(AppProperties.class);
         given(appProperties.getRightAnswersCountToPass()).willReturn(3);
