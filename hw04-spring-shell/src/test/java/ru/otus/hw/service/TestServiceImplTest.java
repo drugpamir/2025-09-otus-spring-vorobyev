@@ -2,6 +2,10 @@ package ru.otus.hw.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.hw.config.AppProperties;
 import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Answer;
@@ -13,17 +17,20 @@ import java.util.List;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class TestServiceImplTest {
 
+    @Mock
     private LocalizedIOService ioService;
 
+    @Mock
     private QuestionDao questionDao;
 
+    @Mock
     private AppProperties appProperties;
 
-    private Student student;
-
-    private TestService testService;
+    @InjectMocks
+    private TestServiceImpl testService;
 
     @BeforeEach
     void setUp() {
@@ -35,31 +42,22 @@ class TestServiceImplTest {
                 new Question("Question 5", List.of(new Answer("Answer 1", false), new Answer("Answer 2", true), new Answer("Answer 3", true)))
         );
 
-        ioService = mock(LocalizedIOService.class);
         given(ioService.readIntForRangeWithPrompt(anyInt(), anyInt(), anyString(), anyString())).willReturn(1);
+        given(ioService.getMessage(anyString(), anyInt())).willReturn("Prompt");
+        given(ioService.getMessage(anyString())).willReturn("Prompt");
 
-        appProperties = mock(AppProperties.class);
-        given(appProperties.getRightAnswersCountToPass()).willReturn(3);
-
-        questionDao = mock(QuestionDao.class);
         given(questionDao.findAll()).willReturn(questions);
-
-        var studentService = mock(StudentService.class);
-        given(studentService.determineCurrentStudent()).willReturn(new Student("John", "Doe"));
-
-        student = studentService.determineCurrentStudent();
-        testService = new TestServiceImpl(ioService, questionDao);
     }
 
     @Test
     void shouldFetchQuestionsFromDao() {
-        testService.executeTestFor(student);
+        testService.executeTestFor(new Student("John", "Doe"));
         verify(questionDao, times(1)).findAll();
     }
 
     @Test
     void shouldPrintQuestionTextToUser() {
-        testService.executeTestFor(student);
+        testService.executeTestFor(new Student("John", "Doe"));
         verify(ioService, atLeast(appProperties.getRightAnswersCountToPass())).printLine(anyString());
     }
 }
