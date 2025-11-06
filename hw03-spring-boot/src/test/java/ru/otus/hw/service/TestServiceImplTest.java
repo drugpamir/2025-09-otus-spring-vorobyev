@@ -21,16 +21,16 @@ import static org.mockito.Mockito.*;
 class TestServiceImplTest {
 
     @Mock
-    LocalizedIOService ioService;
+    private LocalizedIOService ioService;
 
     @Mock
-    QuestionDao questionDao;
+    private QuestionDao questionDao;
 
     @Mock
-    AppProperties appProperties;
+    private AppProperties appProperties;
 
     @InjectMocks
-    TestServiceImpl testService;
+    private TestServiceImpl testService;
 
     @BeforeEach
     void setUp() {
