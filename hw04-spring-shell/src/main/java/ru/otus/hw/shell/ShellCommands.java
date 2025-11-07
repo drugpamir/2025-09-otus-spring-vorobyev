@@ -5,16 +5,13 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.otus.hw.domain.Student;
-import ru.otus.hw.service.LocalizedIOService;
-import ru.otus.hw.service.ResultService;
-import ru.otus.hw.service.TestRunnerService;
-import ru.otus.hw.service.TestService;
+import ru.otus.hw.service.*;
 
 @RequiredArgsConstructor
 @ShellComponent
 public class ShellCommands {
 
-    private final LocalizedIOService ioService;
+    private final LocalizedMessagesService localizedMessagesService;
 
     private final TestService testService;
 
@@ -41,7 +38,7 @@ public class ShellCommands {
             @ShellOption(help = "Last Name") String lastName
     ) {
         student = new Student(firstName.trim(), lastName.trim());
-        return ioService.getMessage("TestService.successfully.logged.in", student.getFullName());
+        return localizedMessagesService.getMessage("TestService.successfully.logged.in", student.getFullName());
     }
 
     @ShellMethod(
@@ -50,10 +47,10 @@ public class ShellCommands {
     )
     public String testStudent() {
         if (student == null) {
-            return ioService.getMessage("TestService.please.login");
+            return localizedMessagesService.getMessage("TestService.please.login");
         }
         var testResult = testService.executeTestFor(student);
         resultService.showResult(testResult);
-        return ioService.getMessage("TestService.test.is.finished", student.getFullName());
+        return localizedMessagesService.getMessage("TestService.test.is.finished", student.getFullName());
     }
 }
