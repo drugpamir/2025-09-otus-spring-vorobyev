@@ -1,0 +1,13 @@
+${AnsiColor.CYAN}
+   ___ _____ _   _ ____    _____ _____    _    __  __
+  / _ \_   _| | | / ___|  |_   _| ____|  / \  |  \/  |
+ | | | || | | | | \___ \    | | |  _|   / _ \ | |\/| |
+ | |_| || | | |_| |___) |   | | | |___ / ___ \| |  | |
+  \___/ |_|  \___/|____/    |_| |_____/_/   \_\_|  |_|
+
+         T E S T I N G   A P P L I C A T I O N
+
+${AnsiColor.YELLOW}
+Spring Boot version: ${spring-boot.version}
+Application version: ${test.version}
+${AnsiColor.DEFAULT}
