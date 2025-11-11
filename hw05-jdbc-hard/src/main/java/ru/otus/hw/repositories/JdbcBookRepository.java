@@ -141,9 +141,13 @@ public class JdbcBookRepository implements BookRepository {
 
     private void batchInsertGenresRelationsFor(Book book) {
         var params = book.getGenres().stream()
-                .map(g -> Map.of("name", g.getName()))
-                .toArray(Map[]::new);
-        jdbc.batchUpdate("insert into genres (name) values (:name)", params);
+                .map(genre ->
+                        new MapSqlParameterSource()
+                                .addValue("book_id", book.getId())
+                                .addValue("genre_id", genre.getId()))
+                .toArray(MapSqlParameterSource[]::new);
+        var sql = "insert into books_genres (book_id, genre_id) values (:book_id, :genre_id)";
+        jdbc.batchUpdate(sql, params);
     }
 
     private void removeGenresRelationsFor(Book book) {
