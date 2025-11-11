@@ -151,12 +151,8 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     private void removeGenresRelationsFor(Book book) {
-        var genreIds = book.getGenres().stream().map(Genre::getId).collect(Collectors.toSet());
-        var params = Map.of(
-                "book_id", book.getId(),
-                "genre_ids", genreIds
-        );
-        jdbc.update("delete from books_genres where book_id = :book_id and genre_id in (:genre_ids)", params);
+        var params = Map.of("book_id", book.getId());
+        jdbc.update("delete from books_genres where book_id = :book_id", params);
     }
 
     private static class BookRowMapper implements RowMapper<Book> {
