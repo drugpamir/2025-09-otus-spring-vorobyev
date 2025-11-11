@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
@@ -115,9 +116,18 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     private Book update(Book book) {
-        //...
+        var params = Map.of(
+                "id", book.getId(),
+                "title", book.getTitle(),
+                "author_id", book.getAuthor().getId()
+        );
+        var sql = "update books set title = :title, author_id = :author_id where id = :id";
+        int updatedRowsCount = jdbc.update(sql, params);
+        if (updatedRowsCount == 0) {
+            var message = String.format("Книга с id = %d не найдена, обновление данных не выполнено", book.getId());
+            throw new EntityNotFoundException(message);
+        }
 
-        // Выбросить EntityNotFoundException если не обновлено ни одной записи в БД
         removeGenresRelationsFor(book);
         batchInsertGenresRelationsFor(book);
 
@@ -125,11 +135,19 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     private void batchInsertGenresRelationsFor(Book book) {
-        // Использовать метод batchUpdate
+        var params = book.getGenres().stream()
+                .map(g -> Map.of("name", g.getName()))
+                .toArray(Map[]::new);
+        jdbc.batchUpdate("insert into genres (name) values (:name)", params);
     }
 
     private void removeGenresRelationsFor(Book book) {
-        //...
+        var genreIds = book.getGenres().stream().map(Genre::getId).collect(Collectors.toSet());
+        var params = Map.of(
+                "book_id", book.getId(),
+                "genre_ids", genreIds
+        );
+        jdbc.update("delete from books_genres where book_id = :book_id and genre_id in (:genre_ids)", params);
     }
 
     private static class BookRowMapper implements RowMapper<Book> {
