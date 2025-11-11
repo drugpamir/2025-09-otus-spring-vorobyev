@@ -15,7 +15,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -27,7 +29,23 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public Optional<Book> findById(long id) {
-        return Optional.empty();
+        var sql = """
+                select b.id, b.title, a.id as a_id, a.full_name as a_full_name\s
+                from books b\s
+                    left join authors a\s
+                        on a.id = b.author_id
+                where b.id = :id
+               \s""";
+        var params = Map.of("id", id);
+        var book = jdbc.query(sql, params, new BookResultSetExtractor());
+        if (book == null) {
+            return Optional.empty();
+        }
+        var relations = getGenreRelationsByBookId(id);
+        var genreIds = relations.stream().map(BookGenreRelation::genreId).collect(Collectors.toSet());
+        var genres = genreRepository.findAllByIds(genreIds);
+        mergeBooksInfo(List.of(book), genres, relations);
+        return Optional.of(book);
     }
 
     @Override
@@ -65,6 +83,12 @@ public class JdbcBookRepository implements BookRepository {
     private List<BookGenreRelation> getAllGenreRelations() {
         var sql = "select book_id, genre_id from books_genres";
         return jdbc.getJdbcOperations().query(sql, new BookGenreRelationMapper());
+    }
+
+    private List<BookGenreRelation> getGenreRelationsByBookId(long id) {
+        var sql = "select book_id, genre_id from books_genres where book_id = :id";
+        var params = Map.of("id", id);
+        return jdbc.query(sql, params, new BookGenreRelationMapper());
     }
 
     private void mergeBooksInfo(List<Book> booksWithoutGenres, List<Genre> genres,
@@ -128,14 +152,19 @@ public class JdbcBookRepository implements BookRepository {
         }
     }
 
-    // Использовать для findById
     @SuppressWarnings("ClassCanBeRecord")
     @RequiredArgsConstructor
     private static class BookResultSetExtractor implements ResultSetExtractor<Book> {
 
         @Override
         public Book extractData(ResultSet rs) throws SQLException, DataAccessException {
-            return null;
+            if (!rs.next()) {
+                return null;
+            }
+            var bookId = rs.getLong("id");
+            var bookTitle = rs.getString("title");
+            var author = new Author(rs.getLong("a_id"), rs.getString("a_full_name"));
+            return new Book(bookId, bookTitle, author, new LinkedList<>());
         }
     }
 
