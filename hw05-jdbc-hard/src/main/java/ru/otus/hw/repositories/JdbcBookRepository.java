@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -106,8 +107,12 @@ public class JdbcBookRepository implements BookRepository {
 
     private Book insert(Book book) {
         var keyHolder = new GeneratedKeyHolder();
-
-        //...
+        var params = new MapSqlParameterSource()
+                .addValue("id", keyHolder)
+                .addValue("title", book.getTitle())
+                .addValue("author_id", book.getAuthor().getId());
+        var sql = "insert into books (title, author_id) values (:title, :author_id)";
+        jdbc.update(sql, params, keyHolder);
 
         //noinspection DataFlowIssue
         book.setId(keyHolder.getKeyAs(Long.class));
