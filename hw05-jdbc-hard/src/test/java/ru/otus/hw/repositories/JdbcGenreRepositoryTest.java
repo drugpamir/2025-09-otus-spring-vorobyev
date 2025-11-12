@@ -3,7 +3,7 @@ package ru.otus.hw.repositories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.*;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
@@ -12,7 +12,6 @@ import ru.otus.hw.models.Genre;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +33,7 @@ class JdbcGenreRepositoryTest {
 
     @DisplayName("Должен загружать список жанров по набору id")
     @ParameterizedTest
-    @MethodSource("provideIds")
+    @CsvSource({"1,2", "2,3", "3,5", "1,6", "4,1"})
     void shouldReturnCorrectGenresListByIds(long id1, long id2) {
         var idsSet = Set.of(id1, id2);
         var expectedGenres = getDbGenres().stream()
@@ -48,15 +47,5 @@ class JdbcGenreRepositoryTest {
         return IntStream.range(1, 7).boxed()
                 .map(id -> new Genre(id, "Genre_" + id))
                 .toList();
-    }
-
-    static Stream<Arguments> provideIds() {
-        return Stream.of(
-                Arguments.of(1L, 2L), // null strings should be considered blank
-                Arguments.of(2L, 3L),
-                Arguments.of(3L, 5L),
-                Arguments.of(1L, 6L),
-                Arguments.of(4L, 1L)
-        );
     }
 }
