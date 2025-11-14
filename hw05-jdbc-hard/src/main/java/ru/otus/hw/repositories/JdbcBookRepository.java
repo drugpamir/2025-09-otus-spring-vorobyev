@@ -15,7 +15,10 @@ import ru.otus.hw.models.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,22 +33,18 @@ public class JdbcBookRepository implements BookRepository {
     @Override
     public Optional<Book> findById(long id) {
         var sql = """
-                select b.id, b.title, a.id as a_id, a.full_name as a_full_name\s
-                from books b\s
-                    left join authors a\s
-                        on a.id = b.author_id
-                where b.id = :id
-               \s""";
+                 select b.id, b.title,\s
+                        a.id as a_id, a.full_name as a_full_name,\s
+                        g.id as g_id, g.name as g_name\s
+                 from books b\s 
+                     left join authors a on a.id = b.author_id 
+                     left join books_genres bg on b.id = bg.book_id
+                     left join genres g on g.id = bg.genre_id
+                 where b.id = :id
+                \s""";
         var params = Map.of("id", id);
         var book = jdbc.query(sql, params, new BookResultSetExtractor());
-        if (book == null) {
-            return Optional.empty();
-        }
-        var relations = getGenreRelationsByBookId(id);
-        var genreIds = relations.stream().map(BookGenreRelation::genreId).collect(Collectors.toSet());
-        var genres = genreRepository.findAllByIds(genreIds);
-        mergeBooksInfo(List.of(book), genres, relations);
-        return Optional.of(book);
+        return Optional.ofNullable(book);
     }
 
     @Override
@@ -188,7 +187,12 @@ public class JdbcBookRepository implements BookRepository {
             var bookId = rs.getLong("id");
             var bookTitle = rs.getString("title");
             var author = new Author(rs.getLong("a_id"), rs.getString("a_full_name"));
-            return new Book(bookId, bookTitle, author, new LinkedList<>());
+            var book = new Book(bookId, bookTitle, author, new LinkedList<>());
+            do {
+                var genre = new Genre(rs.getLong("g_id"), rs.getString("g_name"));
+                book.getGenres().add(genre);
+            } while (rs.next());
+            return book;
         }
     }
 
