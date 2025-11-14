@@ -129,7 +129,7 @@ public class JdbcBookRepository implements BookRepository {
         var sql = "update books set title = :title, author_id = :author_id where id = :id";
         int updatedRowsCount = jdbc.update(sql, params);
         if (updatedRowsCount == 0) {
-            var message = String.format("Книга с id = %d не найдена, обновление данных не выполнено", book.getId());
+            var message = String.format("Book.id = %d not found. Fields are not updated.", book.getId());
             throw new EntityNotFoundException(message);
         }
 
