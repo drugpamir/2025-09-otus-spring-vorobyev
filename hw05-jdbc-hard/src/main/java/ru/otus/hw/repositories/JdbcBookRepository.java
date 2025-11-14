@@ -15,10 +15,8 @@ import ru.otus.hw.models.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Repository
@@ -96,12 +94,14 @@ public class JdbcBookRepository implements BookRepository {
 
     private void mergeBooksInfo(List<Book> booksWithoutGenres, List<Genre> genres,
                                 List<BookGenreRelation> relations) {
+        var booksMap = booksWithoutGenres.stream()
+                .collect(Collectors.toMap(Book::getId, Function.identity()));
+        var genresMap = genres.stream()
+                .collect(Collectors.toMap(Genre::getId, Function.identity()));
         relations.forEach(relation -> {
-            Optional<Book> book = booksWithoutGenres.stream().filter(b -> b.getId() == relation.bookId).findFirst();
-            Optional<Genre> genre = genres.stream().filter(g -> g.getId() == relation.genreId).findFirst();
-            if (book.isPresent() && genre.isPresent()) {
-                book.get().getGenres().add(genre.get());
-            }
+            var book = booksMap.get(relation.bookId);
+            var genre = genresMap.get(relation.genreId);
+            book.getGenres().add(genre);
         });
     }
 
