@@ -3,7 +3,8 @@ package ru.otus.hw.repositories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
@@ -12,6 +13,7 @@ import ru.otus.hw.models.Genre;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,14 +35,18 @@ class JdbcGenreRepositoryTest {
 
     @DisplayName("Должен загружать список жанров по набору id")
     @ParameterizedTest
-    @CsvSource({"1,2", "2,3", "3,5", "1,6", "4,1"})
-    void shouldReturnCorrectGenresListByIds(long id1, long id2) {
-        var idsSet = Set.of(id1, id2);
+    @MethodSource("getGenresIds")
+    void shouldReturnCorrectGenresListByIds(Set<Long> idsSet) {
         var expectedGenres = getDbGenres().stream()
                 .filter(genre -> idsSet.contains(genre.getId()))
                 .toList();
         var actualGenres = repositoryJdbc.findAllByIds(idsSet);
         assertThat(actualGenres).containsExactlyInAnyOrderElementsOf(expectedGenres);
+    }
+
+    public static Stream<Arguments> getGenresIds() {
+        return Stream.of(Arguments.of(Set.of(1L, 2L)), Arguments.of(Set.of(2L, 3L)), Arguments.of(Set.of(3L, 5L)),
+                Arguments.of(Set.of(1L, 6L)), Arguments.of(Set.of(4L, 1L)));
     }
 
     private static List<Genre> getDbGenres() {
